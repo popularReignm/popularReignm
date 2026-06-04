@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>offTheGridGridGrid</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
+
+    #viewport {
+      width: 100vw;
+      height: 100vh;
+      overflow-y: hidden;
+      overflow-x: hidden;
+    }
+
+    .gallery {
+        display: grid;
+
+        gap: 2px;
+        padding: 2px;
+    }
+
+    .photo {
+        aspect-ratio: 1 / 1;
+        overflow: hidden;
+    }
+
+    .photo img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    /* Logo */
+    .logo-overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .logo {
+      width: min(30vw, 300px);
+      opacity: 0.9;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="logo-overlay">
+    <img src="PR.png" class="logo" />
+  </div>
+
+  <div id="viewport">
+    <div id="gallery" class="gallery"></div>
+  </div>
+
+  <script>
+    const gallery = document.getElementById("gallery");
+    const viewport = document.getElementById("viewport");
+
+    const sourceImages = 110;
+    const GAP = 2;
+    const TARGET_SIZE = 120;
+
+    function centerGrid() {
+    viewport.scrollTop =
+        (gallery.scrollHeight - viewport.clientHeight) / 2;
+    }
+
+    function buildGrid() {
+
+    gallery.innerHTML = "";
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    let cols = Math.floor(width / (TARGET_SIZE + GAP));
+    cols = Math.max(3, cols);
+
+    const cellSize =
+        (width - GAP * (cols - 1) - 4) / cols;
+
+    const visibleRows =
+        Math.ceil(height / (cellSize + GAP));
+
+    // 3 écrans de hauteur
+    const rows = visibleRows * 3;
+
+    const totalCells = cols * rows;
+
+    gallery.style.gridTemplateColumns =
+        `repeat(${cols}, 1fr)`;
+
+    for (let i = 0; i < totalCells; i++) {
+
+        const div = document.createElement("div");
+        div.className = "photo";
+
+        const img = document.createElement("img");
+
+        let imageIndex;
+
+        if (i < sourceImages) {
+        imageIndex = i + 1;
+        } else {
+        imageIndex =
+            Math.floor(Math.random() * sourceImages) + 1;
+        }
+
+        img.src = `images/${imageIndex}.jpg`;
+        img.alt = "";
+
+        div.appendChild(img);
+        gallery.appendChild(div);
+    }
+
+    // attendre le rendu avant de centrer
+    setTimeout(() => {
+        centerGrid();
+    }, 50);
+    }
+
+    window.addEventListener("resize", buildGrid);
+
+    window.addEventListener("load", () => {
+    buildGrid();
+    });
+  </script>
+</body>
+</html>
